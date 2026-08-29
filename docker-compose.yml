@@ -1,4 +1,4 @@
-dservices:
+services:
   freeipa-server:
     image: freeipa/freeipa-server:almalinux-9-4.13.1
     container_name: freeipa-server
