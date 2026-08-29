@@ -1,0 +1,51 @@
+services:
+  freeipa-server:
+    image: freeipa/freeipa-server:almalinux-9-4.13.1
+    container_name: freeipa-server
+    hostname: freeipa.study.dev-dom.oraclesiebelcrm.com
+
+    privileged: true
+    restart: unless-stopped
+    stop_grace_period: 60s
+
+    networks:
+      freeipa:
+        ipv4_address: 172.30.0.10
+
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "88:88/tcp"
+      - "88:88/udp"
+      - "389:389/tcp"
+      - "464:464/tcp"
+      - "464:464/udp"
+      - "636:636/tcp"
+      - "8080:80/tcp"
+      - "8443:443/tcp"
+
+    volumes:
+      - ./ipa-data:/data
+
+    command:
+      - ipa-server-install
+      - --realm=STUDY.DEV-DOM.ORACLESIEBELCRM.COM
+      - --domain=study.dev-dom.oraclesiebelcrm.com
+      - --hostname=freeipa.study.dev-dom.oraclesiebelcrm.com
+      - --ip-address=172.30.0.10
+      - --netbios-name=STUDY
+      - --ds-password=${IPA_DS_PASSWORD}
+      - --admin-password=${IPA_ADMIN_PASSWORD}
+      - --setup-dns
+      - --no-reverse
+      - --no-ntp
+      - --forwarder=1.1.1.1
+      - --skip-mem-check
+      - --unattended
+
+networks:
+  freeipa:
+    name: freeipa-net
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

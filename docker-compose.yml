@@ -1,0 +1,72 @@
+services:
+  freeipa-server:
+    image: freeipa/freeipa-server:almalinux-9-4.13.1
+    container_name: freeipa-server
+    hostname: freeipa.study.dev-dom.oraclesiebelcrm.com
+
+    privileged: true
+    restart: unless-stopped
+    stop_grace_period: 60s
+
+    mem_limit: 2g
+    memswap_limit: 4g
+
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_ADMIN
+      - NET_ADMIN
+
+    volumes:
+      - ./ipa-data:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+    extra_hosts:
+      - "freeipa.study.dev-dom.oraclesiebelcrm.com:172.30.0.10"
+
+    networks:
+      freeipa:
+        ipv4_address: 172.30.0.10
+
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "88:88/tcp"
+      - "88:88/udp"
+      - "389:389/tcp"
+      - "464:464/tcp"
+      - "464:464/udp"
+      - "636:636/tcp"
+      - "8080:80/tcp"
+      - "8443:443/tcp"
+
+    command:
+      - ipa-server-install
+      - ipa-server-install
+      - --realm=${IPA_REALM}
+      - --domain=${IPA_DOMAIN}
+      - --hostname=${IPA_HOSTNAME}
+      - --ip-address=${IPA_IP}
+      - --netbios-name=${IPA_NETBIOS_NAME}
+      - --ds-password=${IPA_DS_PASSWORD}
+      - --admin-password=${IPA_ADMIN_PASSWORD}
+      - --setup-dns
+      - --no-reverse
+      - --no-ntp
+      - --forwarder=1.1.1.1
+      - --skip-mem-check
+      - --unattended
+      - --no-host-dns
+
+networks:
+  freeipa:
+    name: freeipa-net
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
