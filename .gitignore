@@ -1,4 +1,4 @@
-ipa-data/
-*.save
-*.log
 .env
+ipa-data/
+*.log
+*.save≈

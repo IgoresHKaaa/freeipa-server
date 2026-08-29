@@ -1,8 +1,8 @@
-services:
+dservices:
   freeipa-server:
     image: freeipa/freeipa-server:almalinux-9-4.13.1
     container_name: freeipa-server
-    hostname: freeipa.study.dev-dom.oraclesiebelcrm.com
+    hostname: ${IPA_HOSTNAME}
 
     privileged: true
     restart: unless-stopped
@@ -28,11 +28,11 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
     extra_hosts:
-      - "freeipa.study.dev-dom.oraclesiebelcrm.com:172.30.0.10"
+      - "${IPA_HOSTNAME}:${IPA_IP}"
 
     networks:
       freeipa:
-        ipv4_address: 172.30.0.10
+        ipv4_address: ${IPA_IP}
 
     ports:
       - "53:53/tcp"
@@ -47,7 +47,6 @@ services:
       - "8443:443/tcp"
 
     command:
-      - ipa-server-install
       - ipa-server-install
       - --realm=${IPA_REALM}
       - --domain=${IPA_DOMAIN}
