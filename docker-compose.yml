@@ -1,39 +1,33 @@
 services:
   freeipa-server:
-    image: freeipa/freeipa-server:almalinux-9-4.13.1
+    image: freeipa/freeipa-server:almalinux-8
     container_name: freeipa-server
     hostname: ${IPA_HOSTNAME}
-
+    env_file:
+      - .env
     privileged: true
-    restart: unless-stopped
+    restart: "no"
     stop_grace_period: 60s
-
     mem_limit: 2g
     memswap_limit: 4g
-
     tmpfs:
       - /run
       - /run/lock
       - /tmp
-
     security_opt:
       - seccomp:unconfined
     cap_add:
       - SYS_ADMIN
       - NET_ADMIN
-
     volumes:
       - ./ipa-data:/data
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-
     extra_hosts:
       - "${IPA_HOSTNAME}:${IPA_IP}"
-
     networks:
       freeipa:
         ipv4_address: ${IPA_IP}
-
     ports:
       - "53:53/tcp"
       - "53:53/udp"
@@ -43,26 +37,9 @@ services:
       - "464:464/tcp"
       - "464:464/udp"
       - "636:636/tcp"
-      - "8080:80/tcp"
-      - "8443:443/tcp"
-
-    command:
-      - ipa-server-install
-      - --realm=${IPA_REALM}
-      - --domain=${IPA_DOMAIN}
-      - --hostname=${IPA_HOSTNAME}
-      - --ip-address=${IPA_IP}
-      - --netbios-name=${IPA_NETBIOS_NAME}
-      - --ds-password=${IPA_DS_PASSWORD}
-      - --admin-password=${IPA_ADMIN_PASSWORD}
-      - --setup-dns
-      - --no-reverse
-      - --no-ntp
-      - --forwarder=1.1.1.1
-      - --skip-mem-check
-      - --unattended
-      - --no-host-dns
-
+    environment:
+      DEBUG_NO_EXIT: "1"
+      IPA_SERVER_INSTALL_OPTS: "--realm=${IPA_REALM} --domain=${IPA_DOMAIN} --hostname=${IPA_HOSTNAME} --ip-address=${IPA_IP} --netbios-name=${IPA_NETBIOS_NAME} --ds-password=${IPA_DS_PASSWORD} --admin-password=${IPA_ADMIN_PASSWORD} --setup-dns --no-reverse --no-ntp --forwarder=1.1.1.1 --skip-mem-check --unattended --no-ssh --no-sshd --no-dnssec-validation"
 networks:
   freeipa:
     name: freeipa-net
