@@ -1,16 +1,24 @@
 services:
   freeipa:
-    image: freeipa/freeipa-server:rocky-8
+    image: freeipa/freeipa-server:rocky-9-4.13.1
     container_name: freeipa-server
     hostname: ${IPA_HOSTNAME}
-    restart: unless-stopped
+
+    privileged: true
+    userns_mode: host
+
+    security_opt:
+      - seccomp=unconfined
+
     tty: true
     stdin_open: true
-    privileged: true
 
     networks:
       ipa_network:
         ipv4_address: ${IPA_IP}
+
+    extra_hosts:
+      - "${IPA_HOSTNAME}:${IPA_IP}"
 
     ports:
       - "8080:80"
@@ -21,46 +29,41 @@ services:
       - "88:88/udp"
       - "464:464"
       - "464:464/udp"
+      - "53:53"
+      - "53:53/udp"
       - "123:123/udp"
 
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
-
-    extra_hosts:
-      - "${IPA_HOSTNAME}:${IPA_IP}"
-
     environment:
-      TZ: "Europe/Moscow"
       PASSWORD: ${IPA_ADMIN_PASSWORD}
-      IPA_SERVER_INSTALL_OPTS: "-U --domain=${IPA_DOMAIN} --realm=${IPA_REALM} --admin-password=${IPA_ADMIN_PASSWORD} --ds-password=${IPA_DS_PASSWORD} --http-pin=${IPA_ADMIN_PASSWORD} --dirsrv-pin=${IPA_ADMIN_PASSWORD} --no-host-dns --setup-dns --auto-forwarders --allow-zone-overlap --no-dnssec-validation --no-ntp --ip-address=${IPA_IP} --hostname=${IPA_HOSTNAME}"
+      IPA_SERVER_INSTALL_OPTS: >-
+        -U
+        --realm=${IPA_REALM}
+        --domain=${IPA_DOMAIN}
+        --hostname=${IPA_HOSTNAME}
+        --admin-password=${IPA_ADMIN_PASSWORD}
+        --ds-password=${IPA_DS_PASSWORD}
+        --setup-dns
+        --auto-forwarders
+        --allow-zone-overlap
+        --no-dnssec-validation
+        --no-ntp
+        --ip-address=${IPA_IP}
+
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - ./ipa-data:/data
+
+    tmpfs:
+      - /run
 
     cap_add:
       - SYS_TIME
       - NET_ADMIN
       - DAC_READ_SEARCH
 
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      - ./ipa-data:/data
-      - /dev/urandom:/dev/random:ro
-      - ./fake-client.sh:/usr/sbin/ipa-client-install:ro
-      - ./fake-client.sh:/usr/bin/ipa-client-install:ro
-
-
-    tmpfs:
-      - /run
-      - /tmp
-
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=0
-      - net.ipv6.conf.default.disable_ipv6=0
-      - net.ipv6.conf.lo.disable_ipv6=0
-
 networks:
   ipa_network:
     driver: bridge
     ipam:
-      driver: default
       config:
         - subnet: 172.30.1.0/24
