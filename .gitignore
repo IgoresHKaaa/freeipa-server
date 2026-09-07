@@ -1,4 +1,7 @@
 .env
 ipa-data/
+certbot-etc/
+certbot-www/
 *.log
-*.save≈
+*.pid
+*.sock
