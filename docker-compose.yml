@@ -4,34 +4,11 @@ services:
     container_name: freeipa-server
     hostname: ${IPA_HOSTNAME}
 
-    privileged: true
-    userns_mode: host
-
-    security_opt:
-      - seccomp=unconfined
+    network_mode: host
+    read_only: true
 
     tty: true
     stdin_open: true
-
-    networks:
-      ipa_network:
-        ipv4_address: ${IPA_IP}
-
-    extra_hosts:
-      - "${IPA_HOSTNAME}:${IPA_IP}"
-
-    ports:
-      - "8080:80"
-      - "8443:443"
-      - "389:389"
-      - "636:636"
-      - "88:88"
-      - "88:88/udp"
-      - "464:464"
-      - "464:464/udp"
-      - "53:53"
-      - "53:53/udp"
-      - "123:123/udp"
 
     environment:
       PASSWORD: ${IPA_ADMIN_PASSWORD}
@@ -42,12 +19,11 @@ services:
         --hostname=${IPA_HOSTNAME}
         --admin-password=${IPA_ADMIN_PASSWORD}
         --ds-password=${IPA_DS_PASSWORD}
-        --setup-dns
-        --auto-forwarders
-        --allow-zone-overlap
-        --no-dnssec-validation
-        --no-ntp
         --ip-address=${IPA_IP}
+        --no-host-dns
+        --no-ssh
+        --no-sshd
+        --no-ntp
 
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
@@ -55,15 +31,3 @@ services:
 
     tmpfs:
       - /run
-
-    cap_add:
-      - SYS_TIME
-      - NET_ADMIN
-      - DAC_READ_SEARCH
-
-networks:
-  ipa_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.30.1.0/24
