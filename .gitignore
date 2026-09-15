@@ -2,6 +2,7 @@
 ipa-data/
 certbot-etc/
 certbot-www/
+nginx/freeipa-ca-bundle.crt
 *.log
 *.pid
 *.sock
