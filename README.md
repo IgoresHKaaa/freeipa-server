@@ -43,19 +43,7 @@ docker compose -f docker-compose.certbot.yml exec certbot certbot certificates
 | 636/tcp | LDAPS | доменные клиенты |
 | 464/tcp,udp | смена Kerberos-пароля | доменные клиенты |
 
-## 3. Пользователи, группы и роли
-
-Не используйте `admin` для работы. Создайте персональные аккаунты и
-группы:
-
-```bash
-ipa user-add alice --first=Alice --last=Admin
-ipa group-add ipa-platform-admins
-ipa group-add-member ipa-platform-admins --users=alice
-ipa role-add-member "User Administrator" --groups=ipa-platform-admins
-```
-
-## 4 Подключение Linux-клиента
+## 3. Подключение Linux-клиента
 
 На клиенте должны работать DNS и время:
 
@@ -76,7 +64,7 @@ kinit admin
 ipa ping
 ```
 
-## 5. Backup
+## 4. Backup
 
 Что лучше бэкапить:
 
