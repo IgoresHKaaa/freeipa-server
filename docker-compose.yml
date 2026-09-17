@@ -3,13 +3,22 @@ services:
     image: freeipa/freeipa-server:rocky-9-4.13.1
     container_name: freeipa-server
     hostname: ${IPA_HOSTNAME}
-
-    network_mode: host
-    read_only: true
     restart: unless-stopped
 
     tty: true
     stdin_open: true
+
+    ports:
+      - "8443:443"
+      - "389:389"
+      - "636:636"
+      - "88:88"
+      - "88:88/udp"
+      - "464:464"
+      - "464:464/udp"
+      - "53:53"
+      - "53:53/udp"
+      - "123:123/udp"
 
     environment:
       PASSWORD: ${IPA_ADMIN_PASSWORD}
