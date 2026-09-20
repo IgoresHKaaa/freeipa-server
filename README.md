@@ -18,7 +18,7 @@ curl -fsS https://freeipa.study.dev-dom.oraclesiebelcrm.com/ipa/ui/ >/dev/null
 ## 2. TLS и Certbot
 
 Certbot хранит сертификаты в certbot-etc. Дополнительный Nginx использует
-8080/8443, потому что основной FreeIPA напрямую занимает 80/443.
+8080/8443, потому что основной FreeIPA напрямую занимает 80/443
 
 ```bash
 docker run --rm freeipa/freeipa-server:rocky-9-4.13.1 \
@@ -30,8 +30,6 @@ docker compose -f docker-compose.certbot.yml exec certbot certbot certificates
 ```
 
 ## 2. Firewall
-
-Не открывайте LDAP, Kerberos и DNS всему интернету
 
 | Порт | Назначение | Доступ |
 |---:|---|---|
